@@ -67,6 +67,7 @@ class GenBot
 
       if special
         favorite(tweet)
+        favd = true # Mark this tweet as favorited
 
         bot.delay DELAY do
           bot.follow tweet[:user][:screen_name]
@@ -79,7 +80,7 @@ class GenBot
       $have_talked[tweet[:user][:screen_name]] = true
 
       if very_interesting || special
-        favorite(tweet) if rand < 0.5
+        favorite(tweet) if (rand < 0.5 && !favd) # Don't fav the tweet if we did earlier
         retweet(tweet) if rand < 0.1
         reply(tweet, meta) if rand < 0.1
       elsif interesting
