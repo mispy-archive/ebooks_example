@@ -5,8 +5,16 @@ include Ebooks
 
 CONSUMER_KEY = ""
 CONSUMER_SECRET = ""
+OATH_TOKEN = "" # oauth token for ebooks account
+OAUTH_TOKEN_SECRET = "" # oauth secret for ebooks account
+
+ROBOT_ID = "ebooks" # Avoid infinite reply chains
+TWITTER_USERNAME = "ebooks_username" # Ebooks account username
+TEXT_MODEL_NAME = "username" # This should be the name of the text model
+
 DELAY = 2..30 # Simulated human reply delay range in seconds
 BLACKLIST = ['insomnius', 'upulie'] # Grumpy users to avoid interaction with
+SPECIAL_WORDS = ['ebooks', 'bot', 'bots', 'clone', 'singularity', 'world domination']
 
 # Track who we've randomly interacted with globally
 $have_talked = {}
@@ -39,12 +47,12 @@ class GenBot
 
     bot.on_mention do |tweet, meta|
       # Avoid infinite reply chains (very small chance of crosstalk)
-      next if tweet[:user][:screen_name].include?('ebooks') && rand > 0.05
+      next if tweet[:user][:screen_name].include?(ROBOT_ID) && rand > 0.05
 
       tokens = NLP.tokenize(tweet[:text])
 
       very_interesting = tokens.find_all { |t| @top50.include?(t.downcase) }.length > 2
-      special = tokens.find { |t| ['ebooks', 'bot', 'bots', 'clone', 'singularity', 'world domination'].include?(t) }
+      special = tokens.find { |t| SPECIAL_WORDS.include?(t) }
 
       if very_interesting || special
         favorite(tweet)
@@ -63,7 +71,7 @@ class GenBot
       # tweet matches our keywords
       interesting = tokens.find { |t| @top100.include?(t.downcase) }
       very_interesting = tokens.find_all { |t| @top50.include?(t.downcase) }.length > 2
-      special = tokens.find { |t| ['ebooks', 'bot', 'bots', 'clone', 'singularity', 'world domination'].include?(t) }
+      special = tokens.find { |t| SPECIAL_WORDS.include?(t) }
 
       if special
         favorite(tweet)
@@ -122,9 +130,9 @@ def make_bot(bot, modelname)
   GenBot.new(bot, modelname)
 end
 
-Ebooks::Bot.new("username_ebooks") do |bot| # Ebooks account username
-  bot.oauth_token = "" # oauth token for ebooks account
-  bot.oauth_token_secret = "" # oauth secret for ebooks account
+Ebooks::Bot.new(TWITTER_USERNAME) do |bot|
+  bot.oauth_token = OATH_TOKEN
+  bot.oauth_token_secret = OAUTH_TOKEN_SECRET
 
-  make_bot(bot, "username") # This should be the name of the text model
+  make_bot(bot, TEXT_MODEL_NAME)
 end
