@@ -1,12 +1,10 @@
 #!/usr/bin/env ruby
 
+require 'dotenv'
+Dotenv.load(".env")
+
 require 'twitter_ebooks'
 include Ebooks
-
-CONSUMER_KEY = ""
-CONSUMER_SECRET = ""
-OATH_TOKEN = "" # oauth token for ebooks account
-OAUTH_TOKEN_SECRET = "" # oauth secret for ebooks account
 
 ROBOT_ID = "ebooks" # Avoid infinite reply chains
 TWITTER_USERNAME = "ebooks_username" # Ebooks account username
@@ -24,8 +22,8 @@ class GenBot
     @bot = bot
     @model = nil
 
-    bot.consumer_key = CONSUMER_KEY
-    bot.consumer_secret = CONSUMER_SECRET
+    bot.consumer_key = ENV['CONSUMER_KEY']
+    bot.consumer_secret = ENV['CONSUMER_SECRET']
 
     bot.on_startup do
       @model = Model.load("model/#{modelname}.model")
@@ -131,8 +129,8 @@ def make_bot(bot, modelname)
 end
 
 Ebooks::Bot.new(TWITTER_USERNAME) do |bot|
-  bot.oauth_token = OATH_TOKEN
-  bot.oauth_token_secret = OAUTH_TOKEN_SECRET
+  bot.oauth_token = ENV['OATH_TOKEN']
+  bot.oauth_token_secret = ENV['OAUTH_TOKEN_SECRET']
 
   make_bot(bot, TEXT_MODEL_NAME)
 end
