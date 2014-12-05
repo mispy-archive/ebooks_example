@@ -14,6 +14,6 @@ ebooks consume corpus/username.json
 
 Populate bots.rb with your auth details, the bot username and model name, then:
 
-`./run.rb`
+`ebooks start`
 
 Also runs as a Heroku app! See the [twitter_ebooks](https://github.com/mispy/twitter_ebooks) README for more information.

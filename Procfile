@@ -1,1 +1,1 @@
-worker: ruby run.rb start
+worker: bundle exec ebooks start
