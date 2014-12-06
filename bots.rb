@@ -15,7 +15,7 @@ class UserInfo
 end
 
 class CloneBot < Ebooks::Bot
-  attr_accessor :original, :model_path
+  attr_accessor :original, :model, :model_path
 
   def configure
     # Configuration for all CloneBots
@@ -24,20 +24,13 @@ class CloneBot < Ebooks::Bot
     self.blacklist = ['kylelehk', 'friedrichsays', 'Sudieofna', 'tnietzschequote', 'NerdsOnPeriod', 'FSR', 'BafflingQuotes', 'Obey_Nxme']
 
     @userinfo = {}
+    
+    load_model!
   end
 
-  def model
-    @model_path ||= "model/#{original}.model"
-    if @model.nil?
-      log "Loading model #{model_path}"
-      @model = Ebooks::Model.load(model_path)
-    else
-      @model
-    end
-  end
 
   def top100; @top100 ||= model.keywords.take(100); end
-  def top20; @top20 ||= model.keywords.take(20); end
+  def top20;  @top20  ||= model.keywords.take(20); end
 
   def delay(&b)
     sleep (1..4).to_a.sample
@@ -45,23 +38,22 @@ class CloneBot < Ebooks::Bot
   end
 
   def on_startup
-    model
-
     scheduler.cron '0 0 * * *' do
       # Each day at midnight, post a single tweet
-      tweet model.make_statement
+      tweet(model.make_statement)
     end
   end
 
   def on_direct_message(dm)
     delay do
-      reply dm, model.make_response(dm.text)
+      reply(dm, model.make_response(dm.text))
     end
   end
 
   def on_mention(tweet)
     # Become more inclined to pester a user when they talk to us
     userinfo(tweet.user.screen_name).pesters_left += 1
+
     delay do
       reply(tweet, model.make_response(meta(tweet).mentionless, meta(tweet).limit))
     end
@@ -69,12 +61,12 @@ class CloneBot < Ebooks::Bot
 
   def on_timeline(tweet)
     return if tweet.retweeted_status?
+    return unless can_pester?(tweet.user.screen_name)
+    
     tokens = Ebooks::NLP.tokenize(tweet.text)
 
     interesting = tokens.find { |t| top100.include?(t.downcase) }
     very_interesting = tokens.find_all { |t| top20.include?(t.downcase) }.length > 2
-
-    return unless can_pester?(tweet.user.screen_name)
 
     delay do
       if very_interesting
@@ -109,11 +101,11 @@ class CloneBot < Ebooks::Bot
   end
 
   def favorite(tweet)
-    if !can_follow?(tweet.user.screen_name)
+    if can_follow?(tweet.user.screen_name)
+      super(tweet)
+    else
       log "Unfollowing @#{tweet.user.screen_name}"
       twitter.unfollow(tweet.user.screen_name)
-    else
-      super(tweet)
     end
   end
 
@@ -123,6 +115,16 @@ class CloneBot < Ebooks::Bot
     else
       log "Not following @#{user.screen_name}"
     end
+  end
+  
+  private
+  def load_model!
+    return if @model
+
+    @model_path ||= "model/#{original}.model"
+
+    log "Loading model #{model_path}"
+    @model = Ebooks::Model.load(model_path)
   end
 end
 
