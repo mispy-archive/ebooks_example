@@ -140,7 +140,7 @@ class CloneBot < Ebooks::Bot
   end
 end
 
-CloneBot.new("abby_ebooks") do |bot|
+CloneBot.new(TWITTER_USERNAME) do |bot|
   bot.access_token = OAUTH_TOKEN
   bot.access_token_secret = OAUTH_TOKEN_SECRET
 
