@@ -1,5 +1,17 @@
 require 'twitter_ebooks'
 
+CONSUMER_KEY = ""
+CONSUMER_SECRET = ""
+OAUTH_TOKEN = "" # oauth token for ebooks account
+OAUTH_TOKEN_SECRET = "" # oauth secret for ebooks account
+
+TWITTER_USERNAME = "" # Ebooks account username
+TEXT_MODEL_NAME = "" # This should be the name of the text model
+
+DELAY = 1..4 # Simulated human reply delay range in seconds
+
+BLACKLIST = ['kylelehk', 'friedrichsays', 'Sudieofna', 'tnietzschequote', 'NerdsOnPeriod', 'FSR', 'BafflingQuotes', 'Obey_Nxme']
+
 # Information about a particular Twitter user we know
 class UserInfo
   attr_reader :username
@@ -19,9 +31,9 @@ class CloneBot < Ebooks::Bot
 
   def configure
     # Configuration for all CloneBots
-    self.consumer_key = ""
-    self.consumer_secret = ""
-    self.blacklist = ['kylelehk', 'friedrichsays', 'Sudieofna', 'tnietzschequote', 'NerdsOnPeriod', 'FSR', 'BafflingQuotes', 'Obey_Nxme']
+    self.consumer_key = CONSUMER_KEY
+    self.consumer_secret = CONSUMER_SECRET
+    self.blacklist = BLACKLIST
 
     @userinfo = {}
     
@@ -33,7 +45,7 @@ class CloneBot < Ebooks::Bot
   def top20;  @top20  ||= model.keywords.take(20); end
 
   def delay(&b)
-    sleep (1..4).to_a.sample
+    sleep (DELAY).to_a.sample
     b.call
   end
 
@@ -121,16 +133,16 @@ class CloneBot < Ebooks::Bot
   def load_model!
     return if @model
 
-    @model_path ||= "model/#{original}.model"
+    @model_path ||= "model/#{TEXT_MODEL_NAME}.model"
 
     log "Loading model #{model_path}"
     @model = Ebooks::Model.load(model_path)
   end
 end
 
-CloneBot.new("abby_ebooks") do |bot|
-  bot.access_token = ""
-  bot.access_token_secret = ""
+CloneBot.new(TWITTER_USERNAME) do |bot|
+  bot.access_token = OAUTH_TOKEN
+  bot.access_token_secret = OAUTH_TOKEN_SECRET
 
-  bot.original = "0xabad1dea"
+  bot.original = TEXT_MODEL_NAME
 end
