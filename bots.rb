@@ -44,7 +44,7 @@ class CloneBot < Ebooks::Bot
     end
   end
 
-  def on_direct_message(dm)
+  def on_message(dm)
     delay do
       reply(dm, model.make_response(dm.text))
     end
