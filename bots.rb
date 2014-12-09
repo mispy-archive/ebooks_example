@@ -24,18 +24,12 @@ class CloneBot < Ebooks::Bot
     self.blacklist = ['kylelehk', 'friedrichsays', 'Sudieofna', 'tnietzschequote', 'NerdsOnPeriod', 'FSR', 'BafflingQuotes', 'Obey_Nxme']
 
     @userinfo = {}
-    
+
     load_model!
   end
 
-
   def top100; @top100 ||= model.keywords.take(100); end
   def top20;  @top20  ||= model.keywords.take(20); end
-
-  def delay(&b)
-    sleep (1..4).to_a.sample
-    b.call
-  end
 
   def on_startup
     scheduler.cron '0 0 * * *' do
@@ -62,7 +56,7 @@ class CloneBot < Ebooks::Bot
   def on_timeline(tweet)
     return if tweet.retweeted_status?
     return unless can_pester?(tweet.user.screen_name)
-    
+
     tokens = Ebooks::NLP.tokenize(tweet.text)
 
     interesting = tokens.find { |t| top100.include?(t.downcase) }
@@ -116,7 +110,7 @@ class CloneBot < Ebooks::Bot
       log "Not following @#{user.screen_name}"
     end
   end
-  
+
   private
   def load_model!
     return if @model
