@@ -24,14 +24,14 @@ class CloneBot < Ebooks::Bot
     self.blacklist = ['kylelehk', 'friedrichsays', 'Sudieofna', 'tnietzschequote', 'NerdsOnPeriod', 'FSR', 'BafflingQuotes', 'Obey_Nxme']
 
     @userinfo = {}
-
-    load_model!
   end
 
   def top100; @top100 ||= model.keywords.take(100); end
   def top20;  @top20  ||= model.keywords.take(20); end
 
   def on_startup
+    load_model!
+
     scheduler.cron '0 0 * * *' do
       # Each day at midnight, post a single tweet
       tweet(model.make_statement)
