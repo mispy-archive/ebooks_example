@@ -66,10 +66,16 @@ class CloneBot < Ebooks::Bot
       if very_interesting
         favorite(tweet) if rand < 0.5
         retweet(tweet) if rand < 0.1
-        reply(tweet, model.make_response(meta(tweet).mentionless, meta(tweet).limit)) if rand < 0.05
+        if rand < 0.01
+          userinfo(username).pesters_left -= 1
+          reply(tweet, model.make_response(meta(tweet).mentionless, meta(tweet).limit))
+        end
       elsif interesting
         favorite(tweet) if rand < 0.05
-        reply(tweet, model.make_response(meta(tweet).mentionless, meta(tweet).limit)) if rand < 0.01
+        if rand < 0.001
+          userinfo(username).pesters_left -= 1
+          reply(tweet, model.make_response(meta(tweet).mentionless, meta(tweet).limit))
+        end
       end
     end
   end
