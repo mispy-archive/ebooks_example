@@ -117,7 +117,7 @@ class CloneBot < Ebooks::Bot
   end
 
   def on_follow(user)
-    if follower.protected? || can_follow?(user.screen_name)
+    if user.protected? || can_follow?(user.screen_name)
       follow(user.screen_name)
     else
       log "Not following @#{user.screen_name}"
