@@ -127,7 +127,6 @@ class CloneBot < Ebooks::Bot
   def followback
     twitter.followers.each do |follower|
       if follower.protected? && !twitter.friendship?(username, follower) && !follower.follow_request_sent?
-        log "Checking if I should followback #{follower.screen_name}"
         on_follow follower
       end
     end
