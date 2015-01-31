@@ -36,6 +36,13 @@ class CloneBot < Ebooks::Bot
       # Each day at midnight, post a single tweet
       tweet(model.make_statement)
     end
+    
+    scheduler.cron '42 * * * *' do
+      # Every hour, check for protected followers
+      followback
+    end
+
+    followback
   end
 
   def on_message(dm)
@@ -114,6 +121,15 @@ class CloneBot < Ebooks::Bot
       follow(user.screen_name)
     else
       log "Not following @#{user.screen_name}"
+    end
+  end
+
+  def followback
+    twitter.followers.each do |follower|
+      if follower.protected? && !twitter.friendship?(username, follower) && !follower.follow_request_sent?
+        log "Checking if I should followback #{follower.screen_name}"
+        on_follow follower
+      end
     end
   end
 
