@@ -97,7 +97,7 @@ class CloneBot < Ebooks::Bot
   # Only follow our original user or people who are following our original user
   # @param user [Twitter::User]
   def can_follow?(username)
-    @original.nil? || username == @original || twitter.friendship?(username, @original)
+    @original.nil? || username.casecmp(@original) == 0 || twitter.friendship?(username, @original)
   end
 
   def favorite(tweet)
